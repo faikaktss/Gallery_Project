@@ -8,11 +8,13 @@ import java.util.UUID;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.faik.Dto.AuthRefreshToken;
 import com.faik.Dto.AuthRequest;
 import com.faik.Dto.AuthResponse;
 import com.faik.Dto.DtoUser;
@@ -25,8 +27,12 @@ import com.faik.Repository.RefreshTokenRepository;
 import com.faik.Repository.UserRepository;
 import com.faik.Service.IAuthenticationService;
 
+
+
 @Service
 public class AuthenticationServiceIMPL  implements IAuthenticationService{
+
+    private final AuthenticationManager authenticationManager;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -42,6 +48,10 @@ public class AuthenticationServiceIMPL  implements IAuthenticationService{
 
 	@Autowired
 	private RefreshTokenRepository refreshTokenRepository;
+
+    AuthenticationServiceIMPL(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 	
 	private User createUser(AuthRequest input) {
 		User user = new User();
@@ -97,5 +107,31 @@ public class AuthenticationServiceIMPL  implements IAuthenticationService{
 		}
 		
 	}
+	
+	private boolean isValidRefreshToken(Date string) {
+		return new Date(System.currentTimeMillis()).before(string);
+	}
 
+
+
+	@Override
+	public AuthResponse refreshToken(AuthRefreshToken input) {
+		Optional<ResfrehToken> optRefreshToken = refreshTokenRepository.findByRefreshToken(input.getRefreshToken()); // veritabanından refreshtoken aldık
+		
+		if(optRefreshToken.isEmpty()) {
+			throw new BaseException(new ErrorMessage(input.getRefreshToken(), com.faik.Exception.MessageType.TOKEN_IS_EXPERİED));
+		}
+		
+		if(isValidRefreshToken(optRefreshToken.get().getExperiedDate())) {
+			throw new BaseException(new ErrorMessage(input.getRefreshToken(), com.faik.Exception.MessageType.TOKEN_IS_EXPERİED));
+		}
+		
+		User user = optRefreshToken.get().getUser();
+		String accessToken = jwtService.generateToken(user);
+		ResfrehToken savedResfrehToken = refreshTokenRepository.save(createResfrehToken(user)); // Yeni refreshToken'ı veritabanına kaydettik
+		
+		return new AuthResponse(accessToken, savedResfrehToken.getRefreshToken());
+		
+	}
+	
 }
