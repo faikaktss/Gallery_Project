@@ -61,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		catch (Exception e) {
 			throw new BaseException(new ErrorMessage(e.getMessage(),com.faik.Exception.MessageType.GENERAL_EXCEPTION));
 		}
+		filterChain.doFilter(request, response);
 	}
 	
 	
