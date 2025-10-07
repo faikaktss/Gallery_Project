@@ -6,6 +6,8 @@
 
 **Galeri Projesi**, bir araç galerisi için yazılmış, profesyonel ve güvenli bir backend uygulamasıdır. Proje, araç, müşteri, galerist ve ilgili varlıkların yönetimini; kullanıcı kimlik doğrulama ve yetkilendirme işlemlerini; güncel döviz kurları entegrasyonunu ve hatalara karşı gelişmiş yönetimi sağlar. Tüm katmanlar modern Java (Spring Boot) teknolojileri ile geliştirilmiştir.
 
+Veritabanı bilgileri Geçerli Değildir. Random bilgilerdir:)
+
 ---
 
 ## 🎯 Özellikler
