@@ -25,4 +25,9 @@ public class SaledCar  extends BaseEntitiy{
 	
 	@ManyToOne
 	private Customer customer;
+
+	public void setCustomer(Account orElse) {
+		// TODO Auto-generated method stub
+		
+	}
 }
